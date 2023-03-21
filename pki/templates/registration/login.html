@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row justify-content-md-center">
+        <div class="col-md-4">
+            <h1>Login</h1>
+
+            {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    Your username and password didn't match. Please try again.
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">{{ form.username.label_tag }}</label>
+                    <input type="text" class="form-control" id="id_username" name="username">
+                </div>
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">{{ form.password.label_tag }}</label>
+                    <input type="password" class="form-control" id="id_password" name="password">
+                </div>
+                <button type="submit" class="btn btn-primary" value="login">Login</button>
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "open-pki"
+version = "0.1.0"
+description = ""
+authors = ["Sander Bos <mail@sanderbos.net>"]
+readme = "README.md"
+packages = [{include = "open_pki"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.1.7"
+grafana-django-saml2-auth = "^3.9.0"
+cryptography = "^39.0.2"
+daphne = "^4.0.0"
+psycopg2 = "^2.9.5"
+python-decouple = "^3.8"
+whitenoise = "^6.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

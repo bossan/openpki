@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row justify-content-md-center">
+        <div class="col-md-4">
+            <h1>Generate Certificate</h1>
+
+            {% if form.errors %}
+                <div class="alert alert-danger" role="alert">
+                    Invalid form.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_ca" class="form-label">Certificate Authority</label>
+                    {{ form.ca }}
+                </div>
+                <button type="submit" class="btn btn-primary" value="login">Generate</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

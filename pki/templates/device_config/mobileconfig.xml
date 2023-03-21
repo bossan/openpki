@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>Dit is een toestemmingsbericht. GEEF TOESTEMMING!</string>
+	</dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>Password</key>
+			<string>{{ pk12_password }}</string>
+			<key>PayloadCertificateFileName</key>
+			<string>{{ pk12_filename }}</string>
+			<key>PayloadContent</key>
+			<data>
+                {{ pk12_base64 }}
+			</data>
+			<key>PayloadDescription</key>
+			<string>Add a PKCS#12 certificate</string>
+			<key>PayloadDisplayName</key>
+			<string>identity.p12</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.security.pkcs12.{{ pk12_uuid }}</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.pkcs12</string>
+			<key>PayloadUUID</key>
+			<string>{{ pk12_uuid }}</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>PayloadCertificateFileName</key>
+			<string>{{ ca_cert_filename }}</string>
+			<key>PayloadContent</key>
+			<data>
+			    {{ ca_cert_base64 }}
+			</data>
+			<key>PayloadDescription</key>
+			<string>Add a CA root certificate</string>
+			<key>PayloadDisplayName</key>
+			<string>{{ ca_name }}</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.security.root.{{ ca_cert_uuid }}</string>
+			<key>PayloadType</key>
+			<string>com.apple.security.root</string>
+			<key>PayloadUUID</key>
+			<string>{{ ca_cert_uuid }}</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>AutoJoin</key>
+			<true/>
+			<key>CaptiveBypass</key>
+			<false/>
+			<key>DisableAssociationMACRandomization</key>
+			<false/>
+			<key>EAPClientConfiguration</key>
+			<dict>
+				<key>AcceptEAPTypes</key>
+				<array>
+					<integer>13</integer>
+				</array>
+				<key>TLSMaximumVersion</key>
+				<string>1.2</string>
+				<key>TLSMinimumVersion</key>
+				<string>1.0</string>
+			</dict>
+			<key>EncryptionType</key>
+			<string>WPA2</string>
+			<key>HIDDEN_NETWORK</key>
+			<false/>
+			<key>IsHotspot</key>
+			<false/>
+			<key>PayloadCertificateUUID</key>
+			<string>{{ pk12_uuid }}</string>
+			<key>PayloadDescription</key>
+			<string>Configure Wireless network settings</string>
+			<key>PayloadDisplayName</key>
+			<string>Wifi</string>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.wifi.managed.021ECC8A-8D4D-4DEE-A4D7-082F27522CB8</string>
+			<key>PayloadType</key>
+			<string>com.apple.wifi.managed</string>
+			<key>PayloadUUID</key>
+			<string>021ECC8A-8D4D-4DEE-A4D7-082F27522CB8</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>ProxyType</key>
+			<string>None</string>
+			<key>SSID_STR</key>
+			<string>{{ ssid }}</string>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Device profile for {{ organization_name }}</string>
+	<key>PayloadDisplayName</key>
+	<string>{{ profile_name }}</string>
+	<key>PayloadIdentifier</key>
+	<string>64AF3506-493B-4FF6-AED9-6E106710FD2B</string>
+	<key>PayloadOrganization</key>
+	<string>{{ organization_name }}</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>52F139F6-C421-47CA-84E4-4D2890B7BDA0</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>
