@@ -240,7 +240,7 @@ data
 !pki/templates/device_config/mobileconfig.xml
 
 # Docker compose
-docker-compose.yml
+docker-compose*.yml
 
 # Configuration folder for freeradius
 raddb/
