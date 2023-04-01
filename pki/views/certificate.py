@@ -25,7 +25,7 @@ class GenerateCertificateView(LoginRequiredMixin, FormView):
         if UserCertificate.objects.filter(user_id=self.request.user.id, revoked_at__isnull=True).exists():
             return HttpResponseBadRequest("<h1>Certificate already exists</h1>")
 
-        pki.services.certificate.generate_for_user(self.request.user, form.cleaned_data['ca'])
+        pki.services.certificate.generate_cert_for_user(self.request.user, form.cleaned_data['ca'])
         return super().form_valid(form)
 
 

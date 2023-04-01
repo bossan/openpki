@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.db import models
 from django.utils import timezone
@@ -176,12 +176,12 @@ class BaseCertificate(models.Model):
             self.site = self.ca.site
 
         if not self.validity_start:
-            start = datetime.now() - timedelta(days=1)
+            start = timezone.localtime() - timedelta(days=1)
             self.validity_start = start.replace(hour=0, minute=0, second=0, microsecond=0)
 
         if not self.validity_end:
             delta = timedelta(days=365)
-            self.validity_end = timezone.now() + delta
+            self.validity_end = timezone.localtime() + delta
 
     def _generate_subject(self, subject):
         return x509.Name([

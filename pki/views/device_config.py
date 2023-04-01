@@ -1,5 +1,6 @@
 import uuid
 import base64
+from datetime import timezone
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound
@@ -38,7 +39,7 @@ class DeviceConfigView(LoginRequiredMixin, View):
             'organization_name': f'{site.organization_name}',
             'ssid': site.ssid,
 
-            'pk12_password': settings.PK12_EXPORT_PASSWORD,  # todo: site_export_password
+            'pk12_password': settings.PK12_EXPORT_PASSWORD,
             'pk12_filename': f'{cert.common_name}.p12',
             'pk12_base64': pk12_base64,
             'pk12_name': f'{cert.common_name}',
@@ -48,6 +49,8 @@ class DeviceConfigView(LoginRequiredMixin, View):
             'ca_cert_base64': ca_cert_base64,
             'ca_name': f'{cert.ca.common_name}',
             'ca_cert_uuid': str(uuid.uuid4()),
+
+            'removal_date': cert.validity_end.replace(tzinfo=timezone.utc),
         }
 
         # radius_cert = cert.ca.issued_clientcertificate.filter(name='Radius').first()
