@@ -5,7 +5,7 @@ from pki.models import UserCertificate
 
 
 class PortalHome(LoginRequiredMixin, TemplateView):
-    template_name = 'portal/portal_home.html'
+    template_name = 'portal/home.html'
 
     def get_context_data(self, **kwargs):
         context_data = super(PortalHome, self).get_context_data(**kwargs)

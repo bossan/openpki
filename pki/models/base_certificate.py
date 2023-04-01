@@ -78,6 +78,14 @@ class BaseCertificate(models.Model):
 
     name = models.CharField(max_length=255)
 
+    site = models.ForeignKey(
+        'pki.Site',
+        related_name='site_%(class)s',
+        blank=True,
+        null=False,
+        on_delete=models.CASCADE
+    )
+
     key_length = models.IntegerField(
         _('key length'),
         help_text=_('bits'),
@@ -164,6 +172,9 @@ class BaseCertificate(models.Model):
         return x509.random_serial_number()
 
     def clean(self):
+        if hasattr(self, 'ca'):
+            self.site = self.ca.site
+
         if not self.validity_start:
             start = datetime.now() - timedelta(days=1)
             self.validity_start = start.replace(hour=0, minute=0, second=0, microsecond=0)

@@ -13,7 +13,11 @@
 {% block body %}
     <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">PKI Portal</a>
+            {% if user.site_user %}
+                <a class="navbar-brand" href="#">PKI Portal {{ user.site_user.site.name }}</a>
+            {% else %}
+                <a class="navbar-brand" href="#">PKI Portal</a>
+            {% endif %}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">

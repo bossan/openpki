@@ -1,57 +1,65 @@
 import base64
 import binascii
-from datetime import datetime, timedelta
 
-from cryptography.hazmat.primitives._serialization import Encoding
+from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import ocsp, OCSPNonce, ExtensionNotFound
+from datetime import datetime, timedelta
 from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from pki.models import UserCertificate, ClientCertificate
+from pki.models import UserCertificate, Certificate, CertificateAuthority
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class OCSPView(View):
 
-    def fail(self, status=ocsp.OCSPResponseStatus.INTERNAL_ERROR):
-        return self.http_response(ocsp.OCSPResponseBuilder.build_unsuccessful(status).public_bytes(Encoding.DER))
+    def fail(self, status=ocsp.OCSPResponseStatus.INTERNAL_ERROR) -> HttpResponse:
+        return HttpResponse(
+            ocsp.OCSPResponseBuilder.build_unsuccessful(status).public_bytes(Encoding.DER),
+            content_type='application/ocsp-response'
+        )
 
-    def http_response(self, data, status=200):
-        return HttpResponse(data, status=status, content_type="application/ocsp-response")
-
-    def handle_ocsp_requesst(self, request):
+    def handle_ocsp_request(self, request: bytes) -> HttpResponse:
         ocsp_req = ocsp.load_der_ocsp_request(request)
 
         cert = UserCertificate.objects.filter(serial_number=ocsp_req.serial_number).first()
         if not cert:
-            cert = ClientCertificate.objects.filter(serial_number=ocsp_req.serial_number).first()
+            cert = Certificate.objects.filter(serial_number=ocsp_req.serial_number).first()
         if not cert:
             return self.fail(ocsp.OCSPResponseStatus.MALFORMED_REQUEST)
 
         ca = cert.ca
 
-        responder_cert = self.get_ocsp_cert(ca)
+        try:
+            responder = self.get_ocsp_cert(ca)
+        except Certificate.DoesNotExist:
+            return self.fail(ocsp.OCSPResponseStatus.INTERNAL_ERROR)
 
         if cert.revoked_at is not None:
             status = ocsp.OCSPCertStatus.REVOKED
         else:
             status = ocsp.OCSPCertStatus.GOOD
 
+        user_cert = cert.x509.to_cryptography()
+        ca_cert = ca.x509.to_cryptography()
+        responder_cert = responder.x509.to_cryptography()
+        responder_key = responder.pkey.to_cryptography_key()
+
         builder = ocsp.OCSPResponseBuilder()
         builder = builder.add_response(
-            cert=cert.x509,
-            issuer=ca.x509,
+            cert=user_cert,
+            issuer=ca_cert,
             algorithm=ocsp_req.hash_algorithm,
             cert_status=status,
             this_update=datetime.now(),
             next_update=datetime.now() + timedelta(seconds=3600),
             revocation_time=cert.revoked_at,
             revocation_reason=None
-        ).responder_id(ocsp.OCSPResponderEncoding.HASH, responder_cert.x509)
+        ).responder_id(ocsp.OCSPResponderEncoding.HASH, responder_cert)
 
-        builder = builder.certificates([responder_cert.x509])
+        builder = builder.certificates([responder_cert])
 
         try:
             nonce = ocsp_req.extensions.get_extension_for_class(OCSPNonce)
@@ -59,10 +67,14 @@ class OCSPView(View):
         except ExtensionNotFound:
             pass
 
-        response = builder.sign(responder_cert.pkey, responder_cert.X509.signature_hash_algorithm)
-        return self.http_response(response.public_bytes(Encoding.DER))
+        response = builder.sign(responder_key, responder_cert.signature_hash_algorithm)
 
-    def get(self, request, data, *args, **kwargs):
+        return HttpResponse(
+            response.public_bytes(Encoding.DER),
+            content_type='application/ocsp-response'
+        )
+
+    def get(self, request, data, *args, **kwargs) -> HttpResponse:
         try:
             data = base64.b64decode(data)
         except binascii.Error:
@@ -70,13 +82,8 @@ class OCSPView(View):
 
         return self.handle_ocsp_request(data)
 
-    def post(self, request, *args, **kwargs):
-        try:
-            ocsp_req = ocsp.load_der_ocsp_request(base64.b64decode(request.body))
-        except binascii.Error:
-            return self.fail(ocsp.OCSPResponseStatus.MALFORMED_REQUEST)
+    def post(self, request, *args, **kwargs) -> HttpResponse:
+        return self.handle_ocsp_request(request.body)
 
-        return self.handle_ocsp_request(ocsp_req)
-
-    def get_ocsp_cert(self, ca):
-        return ClientCertificate.objects.get(common_name="OCSP Responder", ca_id=ca.id)
+    def get_ocsp_cert(self, ca: CertificateAuthority) -> Certificate:
+        return Certificate.objects.get(common_name="OCSP Responder", ca_id=ca.id)

@@ -4,9 +4,8 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                <h1>Self Service</h1>
-
-                <p>Your certificates:</p>
+                <h1>Certificate Self Service</h1>
+                <br/>
                 {% for cert in certificates %}
                     <div>
                         <div class="card" style="height: 500px;">
@@ -55,8 +54,6 @@
                         </div>
                     </div>
                 {% empty %}
-                    No active certificates
-                    <br/>
                     <a href="{% url 'pki:generate' %}" class="btn btn-primary" role="button">Generate Certificate</a>
                 {% endfor %}
             </div>

@@ -10,6 +10,6 @@ urlpatterns = [
     re_path(r'^download-key/(?P<serial>[0-9]{32,48})$', DownloadKeyView.as_view(), name='download-key'),
     re_path(r'^device-config/(?P<serial>[0-9]{32,48})$', DeviceConfigView.as_view(), name='device-config'),
     path('generate', GenerateCertificateView.as_view(), name='generate'),
-    path('ocsp', OCSPView.as_view(), name='ocsp'),
+    re_path(r'^ocsp/?$', OCSPView.as_view(), name='ocsp'),
     path('', PortalHome.as_view(), name='home'),
 ]

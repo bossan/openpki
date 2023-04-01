@@ -136,4 +136,5 @@ LOGIN_URL = 'login'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PK12_EXPORT_PASSWORD = config('PK12_EXPORT_PASSWORD')
+ENCRYPTION_SECRET = config('ENCRYPTION_SECRET')
 SSID = config('SSID')

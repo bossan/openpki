@@ -3,8 +3,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key, pkcs12, PrivateFormat
 from django.conf import settings
 
+from pki.models import BaseCertificate
 
-def generate_for_certificate(cert):
+
+def generate_for_certificate(cert: BaseCertificate) -> bytes:
     pem_cert = x509.load_pem_x509_certificate(
         data=cert.certificate.encode('utf-8')
     )

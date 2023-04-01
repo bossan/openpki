@@ -1,4 +1,5 @@
-
+from typing import Dict
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseBadRequest
 from django.urls import reverse_lazy
 from django.views.generic import View, FormView
@@ -10,12 +11,17 @@ import pki.services.certificate
 import pki.services.identity
 
 
-class GenerateCertificateView(FormView):
+class GenerateCertificateView(LoginRequiredMixin, FormView):
     template_name = 'certificate/generate.html'
     form_class = GenerateUserCertificateForm
     success_url = reverse_lazy('pki:home')
 
-    def form_valid(self, form):
+    def get_form_kwargs(self) -> Dict:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs['site'] = self.request.user.site_user.site
+        return form_kwargs
+
+    def form_valid(self, form) -> HttpResponse:
         if UserCertificate.objects.filter(user_id=self.request.user.id, revoked_at__isnull=True).exists():
             return HttpResponseBadRequest("<h1>Certificate already exists</h1>")
 
@@ -23,8 +29,8 @@ class GenerateCertificateView(FormView):
         return super().form_valid(form)
 
 
-class DownloadIdentityView(View):
-    def get(self, request, serial, *args, **kwargs):
+class DownloadIdentityView(LoginRequiredMixin, View):
+    def get(self, request, serial, *args, **kwargs) -> HttpResponse:
         cert = UserCertificate.objects.filter(serial_number=serial, user_id=request.user.id).first()
         if not cert:
             return HttpResponseNotFound("<h1>Certificate not found</h1>")
@@ -39,8 +45,8 @@ class DownloadIdentityView(View):
         return response
 
 
-class DownloadCertView(View):
-    def get(self, request, serial, *args, **kwargs):
+class DownloadCertView(LoginRequiredMixin, View):
+    def get(self, request, serial, *args, **kwargs) -> HttpResponse:
         cert = UserCertificate.objects.filter(serial_number=serial, user_id=request.user.id).first()
         if not cert:
             cert = CertificateAuthority.objects.filter(serial_number=serial).first()
@@ -55,8 +61,8 @@ class DownloadCertView(View):
         return response
 
 
-class DownloadKeyView(View):
-    def get(self, request, serial, *args, **kwargs):
+class DownloadKeyView(LoginRequiredMixin, View):
+    def get(self, request, serial, *args, **kwargs) -> HttpResponse:
         cert = UserCertificate.objects.filter(serial_number=serial, user_id=request.user.id).first()
         if not cert:
             return HttpResponseNotFound("<h1>Certificate not found</h1>")

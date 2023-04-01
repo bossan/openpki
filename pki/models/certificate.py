@@ -136,10 +136,10 @@ class AbstractCertificate(BaseCertificate):
         self.save()
 
 
-class ClientCertificate(AbstractCertificate):
+class Certificate(AbstractCertificate):
     class Meta:
-        verbose_name = _('ClientCertificate')
-        verbose_name_plural = _('ClientCertificates')
+        verbose_name = _('Certificate')
+        verbose_name_plural = _('Certificates')
 
     def _parse_ip_address(self, ip_address):
         try:
