@@ -3,8 +3,9 @@ import binascii
 
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import ocsp, OCSPNonce, ExtensionNotFound
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.http import HttpResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -37,10 +38,10 @@ class OCSPView(View):
         except Certificate.DoesNotExist:
             return self.fail(ocsp.OCSPResponseStatus.INTERNAL_ERROR)
 
-        if cert.revoked_at is not None:
-            status = ocsp.OCSPCertStatus.REVOKED
-        else:
+        if cert.is_valid():
             status = ocsp.OCSPCertStatus.GOOD
+        else:
+            status = ocsp.OCSPCertStatus.REVOKED
 
         user_cert = cert.x509.to_cryptography()
         ca_cert = ca.x509.to_cryptography()
@@ -53,8 +54,8 @@ class OCSPView(View):
             issuer=ca_cert,
             algorithm=ocsp_req.hash_algorithm,
             cert_status=status,
-            this_update=datetime.now(),
-            next_update=datetime.now() + timedelta(seconds=3600),
+            this_update=timezone.localtime(),
+            next_update=timezone.localtime() + timedelta(seconds=3600),
             revocation_time=cert.revoked_at,
             revocation_reason=None
         ).responder_id(ocsp.OCSPResponderEncoding.HASH, responder_cert)

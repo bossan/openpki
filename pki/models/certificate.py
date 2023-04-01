@@ -121,6 +121,14 @@ class AbstractCertificate(BaseCertificate):
     def __str__(self):
         return f'{self.name}{" - REVOKED" if self.revoked_at is not None else ""}'
 
+    def is_valid(self):
+        if self.revoked_at:
+            return False
+        if self.x509.has_expired():
+            return False
+
+        return True
+
     class Meta:
         abstract = True
         verbose_name = _('Certificate')
