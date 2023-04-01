@@ -1,16 +1,19 @@
 import base64
 import binascii
+import logging
 
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.x509 import ocsp, OCSPNonce, ExtensionNotFound
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.http import HttpResponse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from pki.models import UserCertificate, Certificate, CertificateAuthority
+
+
+logger = logging.getLogger(__name__)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -24,6 +27,8 @@ class OCSPView(View):
 
     def handle_ocsp_request(self, request: bytes) -> HttpResponse:
         ocsp_req = ocsp.load_der_ocsp_request(request)
+
+        logger.info(f"Validating certificate {ocsp_req.serial_number}")
 
         cert = UserCertificate.objects.filter(serial_number=ocsp_req.serial_number).first()
         if not cert:
@@ -54,8 +59,8 @@ class OCSPView(View):
             issuer=ca_cert,
             algorithm=ocsp_req.hash_algorithm,
             cert_status=status,
-            this_update=timezone.localtime(),
-            next_update=timezone.localtime() + timedelta(seconds=3600),
+            this_update=datetime.now(),
+            next_update=datetime.now() + timedelta(seconds=3600),
             revocation_time=cert.revoked_at,
             revocation_reason=None
         ).responder_id(ocsp.OCSPResponderEncoding.HASH, responder_cert)
@@ -69,6 +74,8 @@ class OCSPView(View):
             pass
 
         response = builder.sign(responder_key, responder_cert.signature_hash_algorithm)
+
+        logger.info(f"Validated certificate {ocsp_req.serial_number} with status {status}")
 
         return HttpResponse(
             response.public_bytes(Encoding.DER),
