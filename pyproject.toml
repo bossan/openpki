@@ -10,7 +10,7 @@ packages = [{include = "open_pki"}]
 python = "^3.11"
 django = "^4.2"
 grafana-django-saml2-auth = "^3.9.0"
-cryptography = "^40.0.1"
+cryptography = "^40.0.2"
 daphne = "^4.0.0"
 psycopg2 = "^2.9.6"
 python-decouple = "^3.8"
