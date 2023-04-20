@@ -3,4 +3,4 @@ daphne~=4.0.0
 psycopg2~=2.9.6
 python-decouple~=3.8.0
 whitenoise~=6.4.0
--e git+ssh://git@github.com/bossan/openpki#egg=open-pki
+-e git+https://github.com/bossan/openpki#egg=open-pki
