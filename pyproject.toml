@@ -13,11 +13,6 @@ packages = [{ include = "pki", from = "src" }]
 python = "^3.9"
 django = "^4.0"
 cryptography = "^40.0.2"
-daphne = "^4.0.0"
-psycopg2 = "^2.9.6"
-python-decouple = "^3.8"
-whitenoise = "^6.4.0"
-
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
