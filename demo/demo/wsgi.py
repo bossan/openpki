@@ -13,7 +13,7 @@ from decouple import config
 from django.core.wsgi import get_wsgi_application
 from whitenoise import WhiteNoise
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'open_pki.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'demo.settings')
 
 application = get_wsgi_application()
 application = WhiteNoise(application, root=config('STATIC_ROOT'))
