@@ -27,6 +27,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', config('ALLOWED_HOSTS', default='127.0.0.1')]
 CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Application definition
 
@@ -37,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_saml2_auth',
     'pki',
 ]
 
@@ -148,7 +151,3 @@ LOGGING = {
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-PK12_EXPORT_PASSWORD = config('PK12_EXPORT_PASSWORD')
-ENCRYPTION_SECRET = config('ENCRYPTION_SECRET')
-SSID = config('SSID')

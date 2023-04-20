@@ -244,3 +244,4 @@ docker-compose*.yml
 
 # Configuration folder for freeradius
 raddb/
+nginx/

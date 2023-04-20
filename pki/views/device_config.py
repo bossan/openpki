@@ -6,7 +6,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic import View
 from django.template.loader import render_to_string
-from django.conf import settings
 
 from pki.models import UserCertificate
 
@@ -39,7 +38,7 @@ class DeviceConfigView(LoginRequiredMixin, View):
             'organization_name': f'{site.organization_name}',
             'ssid': site.ssid,
 
-            'pk12_password': settings.PK12_EXPORT_PASSWORD,
+            'pk12_password': site.export_password,
             'pk12_filename': f'{cert.common_name}.p12',
             'pk12_base64': pk12_base64,
             'pk12_name': f'{cert.common_name}',
