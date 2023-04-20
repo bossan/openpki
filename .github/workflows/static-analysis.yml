@@ -1,4 +1,4 @@
-name: Pylint
+name: Static Analysis
 
 on: [push]
 
@@ -19,6 +19,6 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install
-    - name: Analysing the code with pylint
+    - name: Analysing the code with flake8
       run: |
-        pylint $(git ls-files '*.py')
+        flake8 .
