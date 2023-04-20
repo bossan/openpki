@@ -1,0 +1,3 @@
+recursive-include src/pki/static *
+recursive-include src/pki/templates *
+include README.md

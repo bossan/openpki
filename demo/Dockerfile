@@ -16,8 +16,6 @@ RUN apt-get update && \
     ssh \
     libpq-dev
 
-WORKDIR /app
-
 COPY ./requirements.txt requirements.txt
 
 RUN python3 -m venv /opt/venv && \
