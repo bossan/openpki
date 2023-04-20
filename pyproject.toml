@@ -16,6 +16,7 @@ cryptography = "^40.0.2"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
+bandit = "^1.7.5"
 
 [build-system]
 requires = ["poetry-core"]
