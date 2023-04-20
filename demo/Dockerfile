@@ -6,15 +6,6 @@ RUN apt-get update && \
     postgresql-client
 
 
-FROM base as poetry
-
-WORKDIR /usr/src/app
-
-RUN pip install poetry~=1.4.0
-COPY poetry.lock pyproject.toml ./
-RUN poetry export -o requirements.txt
-
-
 FROM base as builder
 
 # Requirements only needed for installing pip-packages
@@ -25,12 +16,14 @@ RUN apt-get update && \
     ssh \
     libpq-dev
 
-COPY --from=poetry /usr/src/app/requirements.txt /tmp/requirements.txt
+WORKDIR /app
+
+COPY ./requirements.txt requirements.txt
 
 RUN python3 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install -U pip setuptools && \
-    pip install -r /tmp/requirements.txt
+    pip install -r requirements.txt
 
 
 FROM base as final
@@ -41,7 +34,7 @@ ENV HOME=/app
 ENV APP_HOME=/app/web
 ENV MEDIA_ROOT=${APP_HOME}/media
 ENV STATIC_ROOT=${APP_HOME}/static
-ENV DJANGO_SETTINGS_MODULE=open_pki.settings
+ENV DJANGO_SETTINGS_MODULE=demo.settings
 
 ARG user=appuser
 ARG group=appuser
