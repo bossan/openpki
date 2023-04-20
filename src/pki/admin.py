@@ -43,4 +43,3 @@ admin.site.register(Site, SiteAdmin)
 admin.site.register(Certificate, CertificateAdmin)
 admin.site.register(UserCertificate, CertificateAdmin)
 admin.site.register(CertificateAuthority, CACertificateAdmin)
-

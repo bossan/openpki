@@ -40,7 +40,7 @@ class DownloadIdentityView(LoginRequiredMixin, View):
         file_name = f'identity-{request.user.username}.p12'
 
         response = HttpResponse(p12)
-        response['Content-Type'] = f'application/x-pkcs12'
+        response['Content-Type'] = 'application/x-pkcs12'
         response['Content-Disposition'] = f'attachment; filename={file_name}'
         return response
 
@@ -70,6 +70,6 @@ class DownloadKeyView(LoginRequiredMixin, View):
         file_name = f'{cert.name.replace(" ", "_")}.pem'
 
         response = HttpResponse(cert.private_key)
-        response['Content-Type'] = f'application/x-pem-file'
+        response['Content-Type'] = 'application/x-pem-file'
         response['Content-Disposition'] = f'attachment; filename={file_name}'
         return response
