@@ -26,7 +26,11 @@ class OCSPView(View):
         )
 
     def handle_ocsp_request(self, request: bytes) -> HttpResponse:
-        ocsp_req = ocsp.load_der_ocsp_request(request)
+        try:
+            ocsp_req = ocsp.load_der_ocsp_request(request)
+        except:
+            logger.info(f"Failed loading request")
+            return self.fail(ocsp.OCSPResponseStatus.MALFORMED_REQUEST)
 
         logger.info(f"Validating certificate {ocsp_req.serial_number}")
 
