@@ -1,9 +1,8 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from django.contrib.admin import ModelAdmin, TabularInline
 from django.utils.translation import gettext_lazy as _
 
-from pki.models import User, Site, SiteUser, CertificateAuthority, Certificate, UserCertificate
+from pki.models import Site, SiteUser, CertificateAuthority, Certificate, UserCertificate
 
 
 class SiteUserInlineInline(TabularInline):
@@ -38,7 +37,6 @@ class CertificateAdmin(ModelAdmin):
     list_filter = ['site', 'ca', 'digest', 'key_length', 'revoked_at']
 
 
-admin.site.register(User, UserAdmin)
 admin.site.register(Site, SiteAdmin)
 admin.site.register(Certificate, CertificateAdmin)
 admin.site.register(UserCertificate, CertificateAdmin)
