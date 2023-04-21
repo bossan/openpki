@@ -1,7 +1,6 @@
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_private_key, pkcs12, PrivateFormat
-from django.conf import settings
 
 from pki.models import BaseCertificate
 
@@ -19,7 +18,7 @@ def generate_for_certificate(cert: BaseCertificate) -> bytes:
         PrivateFormat.PKCS12.encryption_builder().
         kdf_rounds(50000).
         key_cert_algorithm(pkcs12.PBES.PBESv1SHA1And3KeyTripleDESCBC).
-        hmac_hash(hashes.SHA1()).build(settings.PK12_EXPORT_PASSWORD.encode('utf-8'))
+        hmac_hash(hashes.SHA1()).build(cert.site.export_password.encode('utf-8'))
     )
 
     return pkcs12.serialize_key_and_certificates(
