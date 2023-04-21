@@ -237,7 +237,7 @@ static/CACHE
 data
 
 # Do not exclude xml template for device configurations
-!pki/templates/device_config/mobileconfig.xml
+!src/pki/templates/device_config/mobileconfig.xml
 
 # Docker compose
 docker-compose*.yml
