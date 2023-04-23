@@ -3,14 +3,16 @@ import base64
 from datetime import timezone
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.generic import View
 from django.template.loader import render_to_string
 
-from pki.models import UserCertificate
+from pki.models import UserCertificate, Certificate
 
 import pki.services.certificate
 import pki.services.identity
+import pki.services.smime
 
 
 class DeviceConfigView(LoginRequiredMixin, View):
@@ -65,6 +67,13 @@ class DeviceConfigView(LoginRequiredMixin, View):
         #     })
 
         config = render_to_string('device_config/mobileconfig.xml', context)
+
+        if getattr(settings, 'SIGN_PROFILES', False):
+            try:
+                signing_cert = Certificate.objects.get(site_id=site.id, name='Code Signing')
+                config = pki.services.smime.sign(config.encode('utf-8'), signing_cert, signing_cert.ca)
+            except Certificate.DoesNotExist:
+                return HttpResponseNotFound("<h1>Tried to sign, but no signing certificate found</h1>")
 
         file_name = f'{request.user.username}.mobileconfig'
 

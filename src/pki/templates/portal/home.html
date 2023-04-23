@@ -54,7 +54,9 @@
                         </div>
                     </div>
                 {% empty %}
-                    <a href="{% url 'pki:generate' %}" class="btn btn-primary" role="button">Generate Certificate</a>
+                    {% if user.site_user %}
+                        <a href="{% url 'pki:generate' %}" class="btn btn-primary" role="button">Generate Certificate</a>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>

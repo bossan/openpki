@@ -27,10 +27,13 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ['localhost', config('ALLOWED_HOSTS', default='127.0.0.1')]
 CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+CSRF_USE_SESSIONS = True
+
+SSL = config('SSL', cast=bool, default=False)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if SSL else None
+SECURE_SSL_REDIRECT = SSL
+SESSION_COOKIE_SECURE = SSL
+CSRF_COOKIE_SECURE = SSL
 
 # Application definition
 
@@ -149,3 +152,5 @@ LOGGING = {
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SIGN_PROFILES = True

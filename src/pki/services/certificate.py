@@ -94,3 +94,26 @@ def generate_ocsp_signing_cert_for_site(site: Site, ca: CertificateAuthority) ->
     cert.full_clean()
     cert.save()
     return cert
+
+
+def generate_code_signing_cert_for_site(site: Site, ca: CertificateAuthority) -> Certificate:
+    if ca.site_id != site.id:
+        raise Exception(f"CA should be in site {site}")
+
+    cert = Certificate(
+        site=site,
+        ca=ca,
+        name='Code Signing',
+        common_name=site.name,
+        country_code=site.country_code,
+        state=site.state,
+        organization_name=site.organization_name,
+        organizational_unit_name=site.organizational_unit_name,
+        email=site.email,
+        digest=UserCertificate.DigestChoices.SHA256,
+        key_length=UserCertificate.KeyLengthChoices.B4096,
+        code_signing=True
+    )
+    cert.full_clean()
+    cert.save()
+    return cert
