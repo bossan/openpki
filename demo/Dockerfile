@@ -2,8 +2,10 @@ FROM python:3.11-slim as base
 
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y \
-    postgresql-client
+    apt-get install -y --no-install-recommends \
+    postgresql-client && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 
 FROM base as builder
@@ -11,10 +13,7 @@ FROM base as builder
 # Requirements only needed for installing pip-packages
 RUN apt-get update && \
     apt-get install -y \
-    g++ \
-    git \
-    ssh \
-    libpq-dev
+    git
 
 COPY ./requirements.txt requirements.txt
 
