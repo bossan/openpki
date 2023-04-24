@@ -19,8 +19,8 @@ COPY ./requirements.txt requirements.txt
 
 RUN python3 -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
-    pip install -U pip setuptools && \
-    pip install -r requirements.txt
+    pip install --no-cache-dir -U pip setuptools && \
+    pip install --no-cache-dir -r requirements.txt
 
 
 FROM base as final
@@ -33,14 +33,6 @@ ENV MEDIA_ROOT=${APP_HOME}/media
 ENV STATIC_ROOT=${APP_HOME}/static
 ENV DJANGO_SETTINGS_MODULE=demo.settings
 
-ARG user=appuser
-ARG group=appuser
-ARG uid=1000
-ARG gid=1000
-
-RUN groupadd -g ${gid} ${group} && \
-    useradd -u ${uid} -g ${group} -s /bin/sh -m ${user}
-
 RUN mkdir $APP_HOME && \
     mkdir -p $MEDIA_ROOT && \
     mkdir -p $STATIC_ROOT
@@ -48,10 +40,8 @@ RUN mkdir $APP_HOME && \
 WORKDIR $APP_HOME
 
 COPY --from=builder /opt/venv/ /opt/venv
-COPY --chown=${uid}:${gid} . $APP_HOME
+COPY . $APP_HOME
 
 ENV PATH="${PATH}:/opt/venv/bin"
-
-USER ${uid}:${gid}
 
 CMD ["./entrypoint.sh"]
