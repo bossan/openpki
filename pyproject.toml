@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "open-pki"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Django app to create and manage certificates"
 authors = ["Sander Bos <mail@sanderbos.net>"]
 readme = "README.md"
