@@ -9,10 +9,6 @@ class Site(models.Model):
         max_length=255
     )
 
-    ssid = models.CharField(
-        max_length=255,
-        verbose_name=_('SSID')
-    )
     export_password = models.CharField(
         _('Export password'),
         max_length=255,
