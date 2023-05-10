@@ -38,7 +38,6 @@ class DeviceConfigView(LoginRequiredMixin, View):
         context = {
             'profile_name': f'{cert.common_name} - {site.name}',
             'organization_name': f'{site.organization_name}',
-            'ssid': site.ssid,
 
             'pk12_password': site.export_password,
             'pk12_filename': f'{cert.common_name}.p12',
