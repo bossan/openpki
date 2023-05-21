@@ -1,5 +1,8 @@
+import datetime
 from datetime import timedelta
+from typing import Optional
 
+from OpenSSL.crypto import PKey, X509
 from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -165,10 +168,10 @@ class BaseCertificate(models.Model):
         help_text=_('passphrase for the private key'),
     )
 
-    def __str__(self):
-        return self.name
+    def __str__(self) -> str:
+        return str(self.name)
 
-    def _generate_serial_number(self):
+    def _generate_serial_number(self) -> int:
         return x509.random_serial_number()
 
     def clean(self):
@@ -183,7 +186,7 @@ class BaseCertificate(models.Model):
             delta = timedelta(days=365)
             self.validity_end = timezone.localtime() + delta
 
-    def _generate_subject(self, subject):
+    def _generate_subject(self, subject) -> x509.Name:
         return x509.Name([
             x509.NameAttribute(x509.NameOID.COMMON_NAME, subject.common_name),
             x509.NameAttribute(x509.NameOID.EMAIL_ADDRESS, subject.email),
@@ -193,15 +196,34 @@ class BaseCertificate(models.Model):
             x509.NameAttribute(x509.NameOID.ORGANIZATIONAL_UNIT_NAME, subject.organizational_unit_name),
         ])
 
-    def add_certificate_options(self, builder: x509.CertificateBuilder):
+    def add_certificate_options(self, builder: x509.CertificateBuilder) -> x509.CertificateBuilder:
         raise NotImplementedError("add_certificate_options needs to be implemented!")
 
-    def _generate(self):
+    def _generate_private_key(self) -> None:
+        if self.private_key:
+            raise Exception("Key already generated")
+
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=self.key_length
         )
+
+        encryption = serialization.BestAvailableEncryption(getattr(self, 'passphrase').encode('utf-8')) \
+            if self.passphrase else serialization.NoEncryption()
+
+        self.private_key = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=encryption,
+        ).decode('utf-8')
+
+    def _generate_cert(self) -> None:
+        if not self.pkey:
+            raise Exception("No private key available")
+
+        private_key = self.pkey.to_cryptography_key()
         public_key = private_key.public_key()
+
         builder = x509.CertificateBuilder()
         builder = builder.subject_name(self._generate_subject(self))
 
@@ -212,7 +234,7 @@ class BaseCertificate(models.Model):
 
         builder = builder.not_valid_before(self.validity_start)
         builder = builder.not_valid_after(self.validity_end)
-        builder = builder.serial_number(self.serial_number)
+        builder = builder.serial_number(int(self.serial_number))
         builder = builder.public_key(public_key)
 
         builder = self.add_certificate_options(builder)
@@ -226,23 +248,14 @@ class BaseCertificate(models.Model):
         else:
             certificate = builder.sign(private_key=private_key, algorithm=self.get_hash())
 
-        encryption = serialization.BestAvailableEncryption(getattr(self, 'passphrase').encode('utf-8')) \
-            if self.passphrase else serialization.NoEncryption()
-
-        self.private_key = private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.TraditionalOpenSSL,
-            encryption_algorithm=encryption,
-        ).decode('utf-8')
-
         self.certificate = certificate.public_bytes(
             encoding=serialization.Encoding.PEM
         ).decode('utf-8')
 
-    def get_hash(self):
+    def get_hash(self) -> hashes.HashAlgorithm:
         match self.digest:
             case BaseCertificate.DigestChoices.SHA1:
-                return hashes.SHA1()
+                return hashes.SHA1()  # nosec: This hash is not safe, but we need to support the option
             case BaseCertificate.DigestChoices.SHA224:
                 return hashes.SHA224()
             case BaseCertificate.DigestChoices.SHA256:
@@ -254,32 +267,58 @@ class BaseCertificate(models.Model):
             case _:
                 raise Exception("Hash not found")
 
+    def renew(
+            self,
+            validity_start: Optional[datetime.datetime] = None,
+            validity_end: Optional[datetime.datetime] = None
+    ) -> None:
+        if not validity_start:
+            start = timezone.localtime() - timedelta(days=1)
+            validity_start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        self.validity_start = validity_start
+
+        if not validity_end:
+            delta = timedelta(days=365)
+            validity_end = self.validity_start + delta
+
+        self.validity_end = validity_end
+        self._generate_cert()
+        self.save()
+
     def save(self, *args, **kwargs):
         generate = not self.pk and not self.certificate and not self.private_key
         super().save(*args, **kwargs)
 
         if generate:
             self.serial_number = self._generate_serial_number() if not self.serial_number else self.serial_number
-            self._generate()
+            self._generate_private_key()
+            self._generate_cert()
             kwargs['force_insert'] = False
             super().save(*args, **kwargs)
 
     @cached_property
-    def x509(self):
-        if self.certificate:
-            return crypto.load_certificate(crypto.FILETYPE_PEM, str.encode(self.certificate))
+    def x509(self) -> Optional[X509]:
+        if not self.certificate:
+            return None
+
+        return crypto.load_certificate(crypto.FILETYPE_PEM, str.encode(self.certificate))
 
     @cached_property
-    def x509_text(self):
-        if self.certificate:
-            text = crypto.dump_certificate(crypto.FILETYPE_TEXT, self.x509)
-            return text.decode('utf-8')
+    def x509_text(self) -> str:
+        if not self.certificate:
+            return ""
+
+        text = crypto.dump_certificate(crypto.FILETYPE_TEXT, self.x509)
+        return text.decode('utf-8')
 
     @cached_property
-    def pkey(self):
-        if self.private_key:
-            return crypto.load_privatekey(
-                crypto.FILETYPE_PEM,
-                self.private_key,
-                passphrase=getattr(self, 'passphrase').encode('utf-8'),
-            )
+    def pkey(self) -> Optional[PKey]:
+        if not self.private_key:
+            return None
+
+        return crypto.load_privatekey(
+            crypto.FILETYPE_PEM,
+            self.private_key,
+            passphrase=getattr(self, 'passphrase').encode('utf-8'),
+        )

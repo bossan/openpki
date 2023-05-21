@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseBadReque
 from django.urls import reverse_lazy
 from django.views.generic import View, FormView
 
-from pki.forms.certificate import GenerateUserCertificateForm
+from pki.forms import GenerateUserCertificateForm, PasswordForm
 from pki.models import UserCertificate, CertificateAuthority
 
 import pki.services.certificate
@@ -29,15 +29,27 @@ class GenerateCertificateView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
-class DownloadIdentityView(LoginRequiredMixin, View):
-    def get(self, request, serial, *args, **kwargs) -> HttpResponse:
-        cert = UserCertificate.objects.filter(serial_number=serial, user_id=request.user.id).first()
+class DownloadIdentityView(LoginRequiredMixin, FormView):
+    template_name = 'certificate/set_password.html'
+    form_class = PasswordForm
+    success_url = reverse_lazy('pki:home')
+
+    def form_valid(self, form) -> HttpResponse:
+        cert = UserCertificate.objects.filter(
+            serial_number=self.kwargs.get('serial'),
+            user_id=self.request.user.id,
+            revoked_at__isnull=True
+        ).first()
+
         if not cert:
             return HttpResponseNotFound("<h1>Certificate not found</h1>")
 
-        p12 = pki.services.identity.generate_for_certificate(cert)
+        p12 = pki.services.identity.generate_for_certificate(
+            cert=cert,
+            export_password=form.cleaned_data.get('password')
+        )
 
-        file_name = f'identity-{request.user.username}.p12'
+        file_name = f'identity-{self.request.user.username}.p12'
 
         response = HttpResponse(p12)
         response['Content-Type'] = 'application/x-pkcs12'

@@ -8,7 +8,6 @@ repository = "https://github.com/bossan/openpki"
 keywords = ["pki", "django"]
 packages = [{ include = "pki", from = "src" }]
 
-
 [tool.poetry.dependencies]
 python = "^3.9"
 django = "^4.2"
@@ -17,6 +16,18 @@ cryptography = "^40.0.2"
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
 bandit = "^1.7.5"
+vulture = "^2.7"
+
+[tool.bandit]
+exclude_dirs = [
+    'tests',
+    'migrations',
+    'venv',
+]
+
+[tool.vulture]
+exclude = ['migrations']
+min_confidence = 100
 
 [build-system]
 requires = ["poetry-core"]
