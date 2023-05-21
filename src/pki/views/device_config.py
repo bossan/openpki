@@ -5,9 +5,11 @@ from datetime import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseNotFound
-from django.views.generic import View
+from django.urls import reverse_lazy
+from django.views.generic import FormView
 from django.template.loader import render_to_string
 
+from pki.forms import PasswordForm
 from pki.models import UserCertificate, Certificate
 
 import pki.services.certificate
@@ -15,23 +17,32 @@ import pki.services.identity
 import pki.services.smime
 
 
-class DeviceConfigView(LoginRequiredMixin, View):
-    def get(self, request, serial, *args, **kwargs):
+class DeviceConfigView(LoginRequiredMixin, FormView):
+    template_name = 'certificate/set_password.html'
+    form_class = PasswordForm
+    success_url = reverse_lazy('pki:home')
+
+    def form_valid(self, form):
         cert = UserCertificate.objects.filter(
-            serial_number=serial,
-            user_id=request.user.id,
+            serial_number=self.kwargs.get('serial'),
+            user_id=self.request.user.id,
             revoked_at__isnull=True
         ).first()
 
         if not cert:
             return HttpResponseNotFound("<h1>No certificate found</h1>")
 
-        site = request.user.site_user.site
+        site = self.request.user.site_user.site
 
         if not site:
             return HttpResponseNotFound("<h1>No site found</h1>")
 
-        pk12 = pki.services.identity.generate_for_certificate(cert)
+        export_password = form.cleaned_data.get('password')
+
+        pk12 = pki.services.identity.generate_for_certificate(
+            cert=cert,
+            export_password=export_password
+        )
         pk12_base64 = base64.encodebytes(pk12).decode('utf-8')
         ca_cert_base64 = base64.encodebytes(cert.ca.certificate.encode('utf-8')).decode('utf-8')
 
@@ -39,7 +50,7 @@ class DeviceConfigView(LoginRequiredMixin, View):
             'profile_name': f'{cert.common_name} - {site.name}',
             'organization_name': f'{site.organization_name}',
 
-            'pk12_password': site.export_password,
+            'pk12_password': export_password,
             'pk12_filename': f'{cert.common_name}.p12',
             'pk12_base64': pk12_base64,
             'pk12_name': f'{cert.common_name}',
@@ -53,18 +64,6 @@ class DeviceConfigView(LoginRequiredMixin, View):
             'removal_date': cert.validity_end.replace(tzinfo=timezone.utc),
         }
 
-        # radius_cert = cert.ca.issued_clientcertificate.filter(name='Radius').first()
-        # radius_cert = None
-        #
-        # if radius_cert:
-        #     radius_cert_base64 = base64.encodebytes(radius_cert.certificate.encode('utf-8')).decode('utf-8')
-        #     context.update({
-        #         'radius_cert_filename': f'{radius_cert.common_name}.crt',
-        #         'radius_cert_base64': radius_cert_base64,
-        #         'radius_name': radius_cert.common_name,
-        #         'radius_cert_uuid': str(uuid.uuid4()),
-        #     })
-
         config = render_to_string('device_config/mobileconfig.xml', context)
 
         if getattr(settings, 'SIGN_PROFILES', False):
@@ -74,7 +73,7 @@ class DeviceConfigView(LoginRequiredMixin, View):
             except Certificate.DoesNotExist:
                 return HttpResponseNotFound("<h1>Tried to sign, but no signing certificate found</h1>")
 
-        file_name = f'{request.user.username}.mobileconfig'
+        file_name = f'{self.request.user.username}.mobileconfig'
 
         response = HttpResponse(config)
         response['Content-Type'] = 'application/xml'

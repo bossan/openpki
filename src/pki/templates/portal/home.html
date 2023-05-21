@@ -19,19 +19,15 @@
                                 </div>
                                 {% if not cert.revoked_at %}
                                     <a href="{% url 'pki:download-identity' cert.serial_number %}"
-                                       target="_blank" class="btn btn-primary" role="button">
+                                       class="btn btn-primary" role="button">
                                         <i class="bi bi-person-check-fill"></i>
                                         Identity
                                     </a>
                                     <a href="{% url 'pki:device-config' cert.serial_number %}"
-                                       target="_blank" class="btn btn-primary" role="button">
+                                       class="btn btn-primary" role="button">
                                         <i class="bi bi-apple"></i>
                                         iOS/macOS Profile
                                     </a>
-                                    {#                                    <a href="#" class="btn btn-success disabled" role="button">#}
-                                    {#                                        <i class="bi bi-android"></i>#}
-                                    {#                                        Android Profile#}
-                                    {#                                    </a>#}
                                     <a href="{% url 'pki:download-cert' cert.serial_number %}" target="_blank"
                                        class="btn btn-secondary" role="button">
                                         <i class="bi bi-patch-check"></i>
@@ -47,8 +43,6 @@
                                         <i class="bi bi-patch-check-fill"></i>
                                         CA Certificate
                                     </a>
-                                    {#                                    <a href="/pki/revoke/{{ cert.serial_number }}" class="btn btn-danger"#}
-                                    {#                                       role="button">Revoke</a>#}
                                 {% endif %}
                             </div>
                         </div>

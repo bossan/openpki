@@ -18,8 +18,17 @@ class SiteAdmin(ModelAdmin):
 
 class CACertificateAdmin(ModelAdmin):
     readonly_fields = ['x509_text']
+    actions = ['renew_action']
     list_display = ['name', 'key_length', 'digest', 'validity_start', 'validity_end']
     list_filter = ['site']
+
+    def renew_action(self, request, queryset):
+        for cert in queryset:
+            cert.renew()
+
+        self.message_user(request, _(f'Renewed {len(queryset)} certificate(s)'))
+
+    renew_action.short_description = _('Renew selected certificates')
 
 
 class CertificateAdmin(ModelAdmin):
@@ -31,8 +40,16 @@ class CertificateAdmin(ModelAdmin):
 
     revoke_action.short_description = _('Revoke selected certificates')
 
+    def renew_action(self, request, queryset):
+        for cert in queryset:
+            cert.renew()
+
+        self.message_user(request, _(f'Renewed {len(queryset)} certificate(s)'))
+
+    renew_action.short_description = _('Renew selected certificates')
+
     readonly_fields = ['site', 'x509_text', 'revoked_at']
-    actions = ['revoke_action']
+    actions = ['revoke_action', 'renew_action']
     list_display = ['name', 'site', 'key_length', 'digest', 'ca', 'validity_start', 'validity_end', 'revoked_at']
     list_filter = ['site', 'ca', 'digest', 'key_length', 'revoked_at']
 

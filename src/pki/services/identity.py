@@ -5,7 +5,10 @@ from cryptography.hazmat.primitives.serialization import load_pem_private_key, p
 from pki.models import BaseCertificate
 
 
-def generate_for_certificate(cert: BaseCertificate) -> bytes:
+def generate_for_certificate(cert: BaseCertificate, export_password: str) -> bytes:
+    if not export_password:
+        raise Exception("export_password cannot be empty")
+
     pem_cert = x509.load_pem_x509_certificate(
         data=cert.certificate.encode('utf-8')
     )
@@ -18,7 +21,9 @@ def generate_for_certificate(cert: BaseCertificate) -> bytes:
         PrivateFormat.PKCS12.encryption_builder().
         kdf_rounds(50000).
         key_cert_algorithm(pkcs12.PBES.PBESv1SHA1And3KeyTripleDESCBC).
-        hmac_hash(hashes.SHA1()).build(cert.site.export_password.encode('utf-8'))
+
+        # Unfortunately SHA1 is necessary here since other algorithms are not guaranteed to be supported
+        hmac_hash(hashes.SHA1()).build(export_password.encode('utf-8'))  # nosec
     )
 
     return pkcs12.serialize_key_and_certificates(
