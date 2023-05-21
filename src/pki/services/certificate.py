@@ -1,7 +1,6 @@
 import logging
 
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 from pki.models import UserCertificate, CertificateAuthority, Site, Certificate
 
 logger = logging.getLogger(__name__)
