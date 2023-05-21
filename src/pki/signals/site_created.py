@@ -8,7 +8,7 @@ import pki.services.certificate
 
 
 @receiver(models.signals.post_save, sender=Site)
-def after_site_created(sender, instance: Site, created: bool, *args, **kwargs):
+def after_site_created(_, instance: Site, created: bool, *args, **kwargs):
     if not created:
         return
 

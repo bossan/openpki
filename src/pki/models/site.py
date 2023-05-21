@@ -9,11 +9,6 @@ class Site(models.Model):
         max_length=255
     )
 
-    export_password = models.CharField(
-        _('Export password'),
-        max_length=255,
-        help_text=_('Password used when exporting profiles. This password is sent in plain text to the user.')
-    )
     organization_name = models.CharField(
         _('organization'),
         max_length=64,
