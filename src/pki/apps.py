@@ -6,4 +6,4 @@ class PkiConfig(AppConfig):
     name = 'pki'
 
     def ready(self):
-        from .signals import after_site_created  # Noqa F401
+        from .signals import after_site_created, after_site_user_created  # Noqa F401

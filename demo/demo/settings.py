@@ -154,3 +154,4 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SIGN_PROFILES = True
+GENERATE_CERT_ON_CREATE = True
