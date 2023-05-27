@@ -1,1 +1,2 @@
 from .site_created import after_site_created
+from .site_user_created import after_site_user_created
