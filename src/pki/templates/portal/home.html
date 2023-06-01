@@ -7,7 +7,38 @@
                 <h1>Certificate Self Service</h1>
                 <br/>
                 {% for cert in certificates %}
-                    <div>
+                    <div class="row d-block d-md-none">
+                        {% if not cert.revoked_at %}
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'pki:download-identity' cert.serial_number %}" target="_blank"
+                                   class="btn btn-primary btn-lg btn-block" role="button">
+                                    <i class="bi bi-person-check-fill"></i>
+                                    Identity
+                                </a>
+                                <a href="{% url 'pki:device-config' cert.serial_number %}" target="_blank"
+                                   class="btn btn-primary btn-lg btn-block" role="button">
+                                    <i class="bi bi-apple"></i>
+                                    iOS/macOS Profile
+                                </a>
+                                <a href="{% url 'pki:download-cert' cert.serial_number %}" target="_blank"
+                                   class="btn btn-secondary btn-lg btn-block" role="button">
+                                    <i class="bi bi-patch-check"></i>
+                                    Certificate
+                                </a>
+                                <a href="{% url 'pki:download-key' cert.serial_number %}" target="_blank"
+                                   class="btn btn-secondary btn-lg btn-block" role="button">
+                                    <i class="bi bi-key"></i>
+                                    Private Key
+                                </a>
+                                <a href="{% url 'pki:download-cert' cert.ca.serial_number %}"
+                                   target="_blank" class="btn btn-secondary btn-lg btn-block" role="button">
+                                    <i class="bi bi-patch-check-fill"></i>
+                                    CA Certificate
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-none d-md-block">
                         <div class="card" style="height: 500px;">
                             <div class="card-header">
                                 {{ cert.name }} {% if cert.revoked_at %}
@@ -49,7 +80,8 @@
                     </div>
                 {% empty %}
                     {% if user.site_user %}
-                        <a href="{% url 'pki:generate' %}" class="btn btn-primary" role="button">Generate Certificate</a>
+                        <a href="{% url 'pki:generate' %}" class="btn btn-primary" role="button">Generate
+                            Certificate</a>
                     {% endif %}
                 {% endfor %}
             </div>
