@@ -16,7 +16,7 @@ cryptography = "^41.0.3"
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.1.0"
 bandit = "^1.7.5"
-vulture = "^2.8"
+vulture = "^2.9"
 
 [tool.bandit]
 exclude_dirs = [
