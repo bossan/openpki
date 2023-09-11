@@ -1,4 +1,4 @@
-Django~=4.2.4
+Django~=4.2.5
 daphne~=4.0.0
 psycopg[binary]~=3.1.10
 python-decouple~=3.8.0
