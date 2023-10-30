@@ -5,8 +5,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     postgresql-client && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
-
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/cache/debconf/*
 
 FROM base as builder
 
