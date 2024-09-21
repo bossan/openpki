@@ -9,8 +9,8 @@ keywords = ["pki", "django"]
 packages = [{ include = "pki", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-django = ">= 4.1, < 5.2"
+python = ">= 3.10 < 3.13"
+django = "5.1.1"
 cryptography = "^43.0.1"
 
 [tool.poetry.group.dev.dependencies]
