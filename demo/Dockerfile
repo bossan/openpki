@@ -1,4 +1,4 @@
-FROM python:3.12-slim as base
+FROM python:3.12-slim AS base
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -8,7 +8,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /var/cache/debconf/*
 
-FROM base as builder
+FROM base AS builder
 
 # Requirements only needed for installing pip-packages
 RUN apt-get update && \
@@ -23,7 +23,7 @@ RUN python3 -m venv /opt/venv && \
     pip install --no-cache-dir -r requirements.txt
 
 
-FROM base as final
+FROM base AS final
 
 RUN mkdir -p /app
 
