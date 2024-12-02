@@ -15,7 +15,7 @@ cryptography = "^43.0.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.1.1"
-bandit = "^1.7.10"
+bandit = "^1.8.0"
 vulture = "^2.13"
 
 [tool.bandit]
