@@ -10,7 +10,7 @@ packages = [{ include = "pki", from = "src" }]
 
 [tool.poetry.dependencies]
 python = ">= 3.10 < 3.13"
-django = "5.1.2"
+django = "5.1.5"
 cryptography = "^43.0.1"
 
 [tool.poetry.group.dev.dependencies]
