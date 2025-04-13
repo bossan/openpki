@@ -500,14 +500,14 @@ files = [
 
 [[package]]
 name = "vulture"
-version = "2.13"
+version = "2.14"
 description = "Find dead code"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "vulture-2.13-py2.py3-none-any.whl", hash = "sha256:34793ba60488e7cccbecdef3a7fe151656372ef94fdac9fe004c52a4000a6d44"},
-    {file = "vulture-2.13.tar.gz", hash = "sha256:78248bf58f5eaffcc2ade306141ead73f437339950f80045dce7f8b078e5a1aa"},
+    {file = "vulture-2.14-py2.py3-none-any.whl", hash = "sha256:d9a90dba89607489548a49d557f8bac8112bd25d3cbc8aeef23e860811bd5ed9"},
+    {file = "vulture-2.14.tar.gz", hash = "sha256:cb8277902a1138deeab796ec5bef7076a6e0248ca3607a3f3dee0b6d9e9b8415"},
 ]
 
 [package.dependencies]
@@ -516,4 +516,4 @@ tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 [metadata]
 lock-version = "2.1"
 python-versions = ">= 3.10 < 3.13"
-content-hash = "6b8da50574694c0e5f39e9ffc135194aa07469165784065b28ffd21fba352e0f"
+content-hash = "c8f793b5171569702a15776dfb700dc5288849a640189c1eb4efc033a5585288"
