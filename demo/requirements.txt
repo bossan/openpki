@@ -1,6 +1,6 @@
 Django~=5.1.1
 daphne~=4.2.1
-psycopg[binary]~=3.2.9
+psycopg[binary]~=3.2.12
 python-decouple~=3.8.0
 whitenoise~=6.9.0
 -e git+https://github.com/bossan/openpki@0.4.0#egg=open-pki
